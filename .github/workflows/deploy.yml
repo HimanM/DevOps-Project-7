@@ -63,32 +63,20 @@ jobs:
 
       - name: Update Kubernetes Manifests
         run: |
-          # Install kustomize
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-          sudo mv kustomize /usr/local/bin/
-
           # Get Short SHA
           SHA=$(git rev-parse --short HEAD)
           LOWER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           
           # Update Cluster A (Staging)
-          cd kubernetes/cluster-a/app
-          kustomize edit set image ghcr.io/${LOWER_REPO}/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
-          kustomize edit set image ghcr.io/placeholder/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
-          kustomize edit set image ghcr.io/${LOWER_REPO}/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
-          kustomize edit set image ghcr.io/placeholder/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
-          cd ../../..
+          sed -i "s|image: ghcr.io/.*/backend:.*|image: ghcr.io/${LOWER_REPO}/backend:sha-${SHA}|g" kubernetes/cluster-a/app/deployment.yaml
+          sed -i "s|image: ghcr.io/.*/frontend:.*|image: ghcr.io/${LOWER_REPO}/frontend:sha-${SHA}|g" kubernetes/cluster-a/app/deployment.yaml
 
           # Update Cluster B (Production)
-          cd kubernetes/cluster-b/app
-          kustomize edit set image ghcr.io/${LOWER_REPO}/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
-          kustomize edit set image ghcr.io/placeholder/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
-          kustomize edit set image ghcr.io/${LOWER_REPO}/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
-          kustomize edit set image ghcr.io/placeholder/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
-          cd ../../..
+          sed -i "s|image: ghcr.io/.*/backend:.*|image: ghcr.io/${LOWER_REPO}/backend:sha-${SHA}|g" kubernetes/cluster-b/app/deployment.yaml
+          sed -i "s|image: ghcr.io/.*/frontend:.*|image: ghcr.io/${LOWER_REPO}/frontend:sha-${SHA}|g" kubernetes/cluster-b/app/deployment.yaml
 
       - name: Commit and Push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update container images to sha-${{ github.sha }}"
-          file_pattern: "kubernetes/**/kustomization.yaml"
+          file_pattern: "kubernetes/**/app/deployment.yaml"
