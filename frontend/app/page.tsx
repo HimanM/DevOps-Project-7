@@ -1,55 +1,70 @@
+import { HeroSection } from "@/components/sections/hero";
+import { InfrastructureSection } from "@/components/sections/infrastructure";
+import { CicdSection } from "@/components/sections/cicd";
+import { ObservabilitySection } from "@/components/sections/observability";
+import { DebuggingSection } from "@/components/sections/debugging";
+
+// This allows the build to be dynamic (force-dynamic) to check env vars at runtime
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
+
+  // Server-side logic to fetch backend
   const backendUrl = process.env.BACKEND_URL || "http://backend:8080";
-  let backendMessage = "Waiting for response...";
-  let isError = false;
+  let backendMessage = "Backend Connected";
 
   try {
-    const res = await fetch(backendUrl, { cache: "no-store" });
+    const res = await fetch(backendUrl, {
+      cache: "no-store",
+      next: { revalidate: 0 }
+    });
     if (res.ok) {
       backendMessage = await res.text();
     } else {
-      backendMessage = `Error: ${res.status} ${res.statusText}`;
-      isError = true;
+      backendMessage = `Error: ${res.status}`;
     }
   } catch (error) {
     backendMessage = "Failed to connect to backend.";
-    isError = true;
-    console.error("Backend fetch error:", error);
   }
 
+  const env = process.env.NODE_ENV || "development";
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white p-4">
-      <main className="flex flex-col items-center gap-8 text-center bg-gray-800 p-12 rounded-xl border border-gray-700 shadow-2xl max-w-2xl w-full">
-        <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          DevOps Project 7
-        </h1>
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30">
 
-        <div className="w-full space-y-4">
-          <h2 className="text-2xl font-semibold text-gray-300">Backend Status</h2>
-
-          <div className={`p-6 rounded-lg border-2 ${isError ? "border-red-500/50 bg-red-900/20" : "border-green-500/50 bg-green-900/20"} transition-all duration-300`}>
-            <p className={`text-xl font-mono ${isError ? "text-red-400" : "text-green-400"}`}>
-              {backendMessage}
-            </p>
+      {/* Navigation / Header */}
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+            <span className="font-bold tracking-tight text-gray-200">
+              DevOps<span className="text-blue-500">Project7</span>
+            </span>
           </div>
-
-          <p className="text-sm text-gray-500 font-mono mt-4">
-            Target: {backendUrl}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 w-full mt-8">
-          <div className="bg-gray-700/50 p-4 rounded-lg">
-            <span className="block text-sm text-gray-400">Environment</span>
-            <span className="font-medium text-blue-300">{process.env.NODE_ENV}</span>
-          </div>
-          <div className="bg-gray-700/50 p-4 rounded-lg">
-            <span className="block text-sm text-gray-400">Time</span>
-            <span className="font-medium text-blue-300">{new Date().toLocaleTimeString()}</span>
+          <div className="hidden gap-8 text-sm font-medium text-gray-400 sm:flex">
+            <a href="#infrastructure" className="hover:text-white transition-colors">Infrastructure</a>
+            <a href="#cicd" className="hover:text-white transition-colors">CI/CD</a>
+            <a href="#observability" className="hover:text-white transition-colors">Observability</a>
+            <a href="#debugging" className="hover:text-white transition-colors">Debugging</a>
           </div>
         </div>
+      </nav>
+
+      {/* Main Content */}
+      <main>
+        <HeroSection initialBackendMessage={backendMessage} initialEnv={env} />
+
+        <div className="relative mx-auto max-w-7xl px-6">
+          <InfrastructureSection />
+          <CicdSection />
+          <ObservabilitySection />
+          <DebuggingSection />
+        </div>
+
+        <footer className="mt-20 border-t border-white/5 bg-black py-12 text-center text-sm text-gray-600">
+          <p className="mb-4">Designed & Architected for DevOps Project 7.</p>
+          <p className="font-mono text-xs text-gray-700">Powered by AWS EKS & ArgoCD</p>
+        </footer>
       </main>
     </div>
   );

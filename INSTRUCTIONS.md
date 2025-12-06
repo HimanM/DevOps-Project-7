@@ -176,3 +176,39 @@ Check autoscaling status:
 ```bash
 kubectl get hpa -n staging
 ```
+
+## 6. Useful Debug Commands
+
+### Cluster Status
+Check all nodes and system components:
+```bash
+kubectl get nodes
+kubectl get all -A
+```
+
+### Namespace Inspection
+Check resources in a specific namespace (e.g., `staging`, `production`, `istio-system`):
+```bash
+kubectl get pods,svc,endpoints,hpa -n staging
+kubectl get pods,svc,endpoints,hpa -n production
+```
+
+### HPA Status
+Monitor autoscaling events:
+```bash
+# Staging
+kubectl get hpa -n staging --watch
+kubectl describe hpa -n staging
+
+# Production
+kubectl get hpa -n production --watch
+kubectl describe hpa -n production
+```
+
+> **Note**: HPA logs are part of the EKS Control Plane. You cannot view them directly with `kubectl logs` unless Control Plane Logging is enabled in AWS. Use `describe hpa` (above) to see scaling events.
+
+### Metrics Server Logs
+If HPA shows `<unknown>` targets, check the Metrics Server:
+```bash
+kubectl -n kube-system logs -l k8s-app=metrics-server
+```
