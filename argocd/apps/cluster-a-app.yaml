@@ -6,7 +6,7 @@ metadata:
 spec:
   project: cluster-a
   source:
-    repoURL: https://github.com/HimanM/DevOps-Project-7.git
+    repoURL: https://github.com/himanm/devops-project-7.git
     targetRevision: HEAD
     path: kubernetes/cluster-a
   destination:
