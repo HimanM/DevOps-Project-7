@@ -40,7 +40,7 @@ Key technologies:
 
 ## Architecture
 
-![Placeholder: Architecture Diagram. Please insert a diagram illustrating the flow from Developer -> GitHub -> GitHub Actions -> GHCR -> ArgoCD -> EKS Staging/Production.]
+*(Architecture diagram placeholder)*
 
 ## Repository Structure
 
@@ -60,66 +60,73 @@ We use Terraform to provision two separate EKS clusters.
 **Staging Cluster (Cluster A):**
 Run `terraform apply` in `infra/cluster-a`.
 
-![Placeholder: Terraform Output. Please take a screenshot of the terminal showing the successful 'Apply complete' message and the output variables for Cluster A.]
+![Staging Cluster Output](docs/staging_cluster_output.png)
 
 **Production Cluster (Cluster B):**
 Run `terraform apply` in `infra/cluster-b`.
 
-![Placeholder: Terraform Output. Please take a screenshot of the terminal showing the successful 'Apply complete' message and the output variables for Cluster B.]
+![Production Cluster Output](docs/prod_cluster_output.png)
 
 ### 2. Kubernetes Configuration
 
 After provisioning, configure your local `kubectl` to interact with both clusters.
 
-![Placeholder: Kubectl Context Verification. Please take a screenshot of the terminal running 'kubectl config get-contexts' or 'kubectl get nodes' to verify connectivity to both clusters.]
+![Kubeconfig Verification](docs/aws_clusters_to_kubeconfig_and_verification.png)
 
 ### 3. ArgoCD Setup
 
 ArgoCD is installed on the Staging cluster (Cluster A) and manages both environments.
 
-**Installation & Login:**
-Execute the installation commands and login via the CLI.
-
-![Placeholder: ArgoCD Login. Please take a screenshot of the ArgoCD login page or the CLI login success message.]
-
-**Cluster Registration:**
+**Adding Clusters:**
 Register the Production cluster (Cluster B) with ArgoCD.
 
-![Placeholder: ArgoCD Cluster List. Please take a screenshot of the terminal output or ArgoCD UI 'Settings > Clusters' page showing both the local and production clusters connected.]
+![Adding Clusters to ArgoCD](docs/ading_clusters_to_argocd.png)
 
 **Application Sync:**
 Apply the ArgoCD Project and Application manifests.
 
-![Placeholder: ArgoCD Applications. Please take a screenshot of the ArgoCD Dashboard showing the Staging and Production applications in a 'Synced' and 'Healthy' state.]
+![ArgoCD Applications](docs/argocd_applcations.png)
 
-### 6. Horizontal Pod Autoscaling (HPA)
+**Staging Application Status:**
+![Staging ArgoCD Status](docs/staging_argocd_sync_status.png)
+
+**Production Application Status:**
+![Production ArgoCD Status](docs/prod_argocd_sync_status.png)
+
+## Horizontal Pod Autoscaling (HPA)
 
 HPA is configured to automatically scale pods based on CPU utilization (target 50%, min 2, max 10 replicas).
 
-**Verify HPA:**
-```bash
-kubectl get hpa -n staging
-# or
-kubectl get hpa -n production
-```
+**Staging HPA Status:**
+![Staging HPA](docs/staging_hpa_status.png)
 
-### 7. Observability (Kiali & Prometheus)
+**Production HPA Status:**
+![Production HPA](docs/prod_hpa_status.png)
+
+## Observability (Kiali & Prometheus)
 
 Kiali provides a visualization of your Service Mesh.
 
-**Access Kiali:**
-```bash
-kubectl -n istio-system port-forward svc/kiali 20001:20001
-# Open http://localhost:20001
-```
+### Staging Environment
 
-**Access Prometheus:**
-```bash
-kubectl -n prometheus port-forward svc/prometheus-server 9090:80
-# Open http://localhost:9090
-```
+**Traffic Graph:**
+![Staging Kiali Graph](docs/staging_kiali_traffic_graph.png)
 
-### 8. Environment-Specific Builds
+**Applications:**
+![Staging Kiali Applications](docs/staging_kiali_applications.png)
+
+**Workloads:**
+![Staging Kiali Workloads](docs/staging_kiali_workloads.png)
+
+### Production Environment
+
+**Traffic Graph:**
+![Production Kiali Graph](docs/prod_kiali_traffic_graph.png)
+
+**Mesh Overview:**
+![Production Kiali Mesh](docs/prod_kiali_mesh.png)
+
+## Environment-Specific Builds
 
 The CI/CD pipeline builds images with different environment configurations based on the branch:
 - **Feature Branches**: `NODE_ENV=staging`, deployed to Cluster A.
@@ -129,15 +136,14 @@ The CI/CD pipeline builds images with different environment configurations based
 
 The GitHub Actions pipeline automatically builds Docker images, pushes them to GitHub Container Registry (GHCR), and updates the Kubernetes manifests with the new image tags.
 
-![Placeholder: GitHub Actions Run. Please take a screenshot of the GitHub Actions 'Actions' tab showing a successful workflow run.]
-
-![Placeholder: Link to Image Registry. Please take a screenshot of the GitHub Packages/Container Registry page showing the uploaded backend and frontend images with SHA tags.]
+![GitHub Actions Workflow](docs/github_actions_cicd.png)
 
 ## Verification
 
-Once deployed, the application is accessible via the Load Balancer URL provided by the Terraform output.
+You can verify the state of your clusters using `kubectl`.
 
-**Frontend Interface:**
-Access the frontend URL in your browser. It should retrieve data from the backend service.
+**Staging Resources:**
+![Staging Verification](docs/staging_kubectl_get_pods,svc,endpoints,hpa.png)
 
-![Placeholder: Application UI. Please take a screenshot of the running Frontend application in the browser, explicitly showing the 'Hello from Backend!' message displayed on the page.]
+**Production Resources:**
+![Production Verification](docs/prod_kubectl_get_pods,svc,endpoints,hpa.png)
