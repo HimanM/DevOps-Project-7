@@ -10,7 +10,7 @@ spec:
     targetRevision: HEAD
     path: kubernetes/cluster-b
   destination:
-    server: https://kubernetes.default.svc
+    server: https://EBCF339E3249846FD03ECD8B5EA4061E.gr7.us-west-2.eks.amazonaws.com
     namespace: production
   syncPolicy:
     automated:

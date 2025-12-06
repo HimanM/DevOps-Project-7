@@ -10,7 +10,7 @@ spec:
     targetRevision: HEAD
     path: kubernetes/cluster-a
   destination:
-    server: https://kubernetes.default.svc
+    server: https://30E502D40F4EF71C326C686C984B9992.sk1.us-west-2.eks.amazonaws.com
     namespace: staging
   syncPolicy:
     automated:
