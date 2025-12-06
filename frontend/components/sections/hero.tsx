@@ -33,8 +33,8 @@ export function HeroSection({ initialBackendMessage, initialEnv }: HeroSectionPr
                     <a href="https://github.com/HimanM/DevOps-Project-7" target="_blank" className="hover:underline">View on GitHub</a>
                 </span>
 
-                <h1 className="mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-4xl md:text-7xl font-black text-transparent tracking-tight sm:text-8xl drop-shadow-2xl">
-                    Cloud Native Infrastructure 2.
+                <h1 className="mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-3xl sm:text-5xl md:text-7xl font-black text-transparent tracking-tight drop-shadow-2xl leading-tight max-w-4xl">
+                    Cloud Native <br className="hidden md:block" /> Infrastructure&nbsp;2.
                 </h1>
 
                 <p className="mb-8 md:mb-12 max-w-2xl text-base md:text-xl text-gray-400 leading-relaxed font-light">
