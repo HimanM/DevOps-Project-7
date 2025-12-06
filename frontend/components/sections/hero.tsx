@@ -62,7 +62,22 @@ export function HeroSection({ initialBackendMessage, initialEnv }: HeroSectionPr
                                 <span className="text-xl font-bold">{backendMessage}</span>
                             </div>
                         )}
-                        <p className="mt-2 text-xs text-gray-600 font-mono truncate max-w-[200px]">{initialBackendMessage}</p>
+                        <div className="mt-2 w-full max-w-[200px] overflow-hidden relative group">
+                            <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/20 to-transparent z-10" />
+                            <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/20 to-transparent z-10" />
+                            <motion.div
+                                className="flex whitespace-nowrap"
+                                animate={{ x: ["0%", "-50%"] }}
+                                transition={{
+                                    repeat: Infinity,
+                                    ease: "linear",
+                                    duration: 15,
+                                }}
+                            >
+                                <p className="text-xs text-gray-600 font-mono pr-8">{initialBackendMessage}</p>
+                                <p className="text-xs text-gray-600 font-mono pr-8">{initialBackendMessage}</p>
+                            </motion.div>
+                        </div>
                     </GlassCard>
                 </div>
             </motion.div>
