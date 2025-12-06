@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/placeholder/backend:latest
+        image: ghcr.io/himanm/devops-project-7/backend:sha-8ba9fa8
         ports:
         - containerPort: 8080
         env:
@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/placeholder/frontend:latest
+        image: ghcr.io/himanm/devops-project-7/frontend:sha-8ba9fa8
         ports:
         - containerPort: 3000
         env:
