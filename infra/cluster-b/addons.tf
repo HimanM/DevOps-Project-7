@@ -30,6 +30,7 @@ resource "helm_release" "istio_base" {
   create_namespace = true
   version          = "1.28.0"
   wait             = true
+  timeout          = 900
 }
 
 resource "helm_release" "istiod" {
@@ -38,6 +39,7 @@ resource "helm_release" "istiod" {
   chart      = "istiod"
   namespace  = "istio-system"
   wait       = true
+  timeout    = 900
   version    = "1.28.0"
 
   depends_on = [helm_release.istio_base]
@@ -50,6 +52,7 @@ resource "helm_release" "prometheus" {
   namespace        = "prometheus"
   create_namespace = true
   version          = "25.8.0"
+  timeout          = 900
 
   values = [
     <<EOF
@@ -66,6 +69,7 @@ resource "helm_release" "istio_ingress" {
   chart      = "gateway"
   namespace  = "istio-system"
   wait       = true
+  timeout    = 900
   version    = "1.28.0"
 
   depends_on = [helm_release.istiod]
