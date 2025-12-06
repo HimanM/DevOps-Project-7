@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/himanm/devops-project-7/backend:test-47947bc
+        image: ghcr.io/himanm/devops-project-7/backend:test-27b836f
         ports:
         - containerPort: 8080
         resources:
@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/himanm/devops-project-7/frontend:test-47947bc
+        image: ghcr.io/himanm/devops-project-7/frontend:test-27b836f
         ports:
         - containerPort: 3000
         resources:
