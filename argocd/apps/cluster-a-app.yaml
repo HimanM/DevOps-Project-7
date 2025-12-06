@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: cluster-a-app
   namespace: argocd
+  annotations:
+    link.argocd.argoproj.io/external-link: http://aa48dff6f5df247deabcae6f5a78e87e-eea0a0211b6d7907.elb.us-west-2.amazonaws.com
 spec:
   project: cluster-a
   source:
