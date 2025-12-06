@@ -89,7 +89,18 @@ Apply the ArgoCD Project and Application manifests.
 
 ![Placeholder: ArgoCD Applications. Please take a screenshot of the ArgoCD Dashboard showing the Staging and Production applications in a 'Synced' and 'Healthy' state.]
 
-## CI/CD Workflow
+
+### 6. Horizontal Pod Autoscaling (HPA)
+
+HPA is configured to automatically scale pods based on CPU utilization (target 50%, min 2, max 10 replicas).
+
+**Verify HPA:**
+```bash
+kubectl get hpa -n staging
+# or
+kubectl get hpa -n production
+```
+
 
 The GitHub Actions pipeline automatically builds Docker images, pushes them to GitHub Container Registry (GHCR), and updates the Kubernetes manifests with the new image tags.
 

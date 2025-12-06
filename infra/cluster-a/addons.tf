@@ -97,6 +97,34 @@ EOF
   depends_on = [helm_release.istiod]
 }
 
+resource "helm_release" "metrics_server" {
+  name       = "metrics-server"
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+  namespace  = "kube-system"
+  version    = "3.12.1"
+  wait       = false
+
+  set {
+    name  = "args"
+    value = "{--kubelet-insecure-tls}"
+  }
+}
+
+resource "helm_release" "kiali_server" {
+  name       = "kiali-server"
+  repository = "https://kiali.org/helm-charts"
+  chart      = "kiali-server"
+  namespace  = "istio-system"
+  wait       = false
+  version    = "1.92.0"
+
+  set {
+    name  = "auth.strategy"
+    value = "anonymous"
+  }
+}
+
 data "kubernetes_service" "ingress_gateway" {
   metadata {
     name      = "istio-ingressgateway"

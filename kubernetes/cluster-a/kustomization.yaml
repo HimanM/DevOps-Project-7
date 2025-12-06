@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - app/
+  - app/hpa.yaml
 
