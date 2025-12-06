@@ -17,3 +17,8 @@ output "cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = module.eks.cluster_name
 }
+
+output "load_balancer_hostname" {
+  value       = one(data.kubernetes_service.ingress_gateway.status.0.load_balancer.0.ingress).hostname
+  description = "The external hostname of the Istio Ingress Gateway LoadBalancer"
+}

@@ -4,16 +4,17 @@ This reference guide covers the setup for creating two EKS clusters (Staging & P
 
 ## Prerequisites
 
-- AWS CLI configured with appropriate permissions.
-- Terraform installed (>= 1.0).
-- Kubectl installed.
-- Github Account and Repository with actions enabled.
+- **AWS CLI** configured with appropriate permissions.
+- **Terraform** installed (>= 1.0).
+- **Kubectl** installed.
+- **ArgoCD CLI** installed.
+- **GitHub Account** and Repository with actions enabled.
 
 ## 1. Infrastructure Provisioning (Terraform)
 
-We have two cluster configurations: `infra/cluster-a` (Staging) and `infra/cluster-b` (Production).
+We have two cluster configurations: `infra/cluster-a` (Staging/Management) and `infra/cluster-b` (Production).
 
-### Deploy Cluster A (Staging)
+### Step 1: Deploy Cluster A (Staging)
 
 ```bash
 cd infra/cluster-a
@@ -21,38 +22,36 @@ terraform init
 terraform apply --auto-approve
 ```
 
-This will create:
-- VPC
-- EKS Cluster `cluster-a-staging` (K8s 1.31)
-- Node Group
-- Helm releases for Istio (Base, Istiod, Ingress Gateway) and Prometheus.
+This acts as our Management Cluster (running ArgoCD) and Staging Environment.
+- **EKS Version**: 1.34
+- **Addons**: Istio 1.28.0, Prometheus.
 
-### Deploy Cluster B (Production)
+### Step 2: Deploy Cluster B (Production)
 
 ```bash
-cd infra/cluster-b
+cd ../cluster-b
 terraform init
-terraform apply -auto-approve
+terraform apply --auto-approve
 ```
 
-This will create:
-- VPC
-- EKS Cluster `cluster-b-prod` (K8s 1.31)
-- Node Group
-- Helm releases for Istio and Prometheus.
+This acts as our Production Environment.
+- **EKS Version**: 1.34
+- **Addons**: Istio 1.28.0, Prometheus.
 
-### Configure Kubectl
+### Step 3: Configure Kubectl Contexts
 
-After Terraform completes, update your kubeconfig:
+Once Terraform finishes, update your local kubeconfig to access both clusters:
 
 ```bash
-aws eks update-kubeconfig --region us-west-2 --name cluster-a-staging --alias staging
-aws eks update-kubeconfig --region us-west-2 --name cluster-b-prod --alias production
+aws eks update-kubeconfig --region us-east-1 --name cluster-a-staging --alias staging
+aws eks update-kubeconfig --region us-east-1 --name cluster-b-prod --alias production
 ```
 
 ## 2. ArgoCD Setup
 
-You need to install ArgoCD on one of the clusters (or a management cluster). Assuming you use Cluster A for management:
+We will install ArgoCD on **Cluster A (Staging)** and configure it to manage both clusters.
+
+### Step 1: Install ArgoCD
 
 ```bash
 kubectl config use-context staging
@@ -60,48 +59,83 @@ kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-Login to ArgoCD (Port forward):
+### Step 2: Access ArgoCD UI
+
+Port-forward the ArgoCD server to access the UI (keep this terminal open):
+
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8081:443
-# Login with admin / initial secret (check argocd docs)
 ```
 
-### Apply ArgoCD Projects and Apps
+- **URL**: `https://localhost:8081`
+- **Username**: `admin`
+- **Password**: Get the initial secret:
+  ```bash
+  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+  ```
+
+### Step 3: Register Clusters to ArgoCD
+
+1. **Login to ArgoCD via CLI**:
+   ```bash
+   argocd login localhost:8081 --username admin --password <password> --insecure
+   ```
+
+2. **Add Cluster B (Production)**:
+   Since ArgoCD is running on Cluster A, it knows about Cluster A (as `https://kubernetes.default.svc`). We need to tell it about Cluster B.
+   ```bash
+   argocd cluster add production
+   ```
+   *Note: Ensure your current kubectl context is set correctly or use `--kubeconfig` if needed. This command installs a ServiceAccount in Cluster B that ArgoCD uses for access.*
+
+### Step 4: Configure Projects and Apps
 
 1. **Update Repository URL**:
-   Edit `argocd/apps/cluster-a-app.yaml` and `argocd/apps/cluster-b-app.yaml`.
-   Replace `https://github.com/USER/REPO` with your actual GitHub Repository URL.
+   Open these files and replace `https://github.com/REPLACE_ME_WITH_YOUR_REPO_URL` with your actual GitHub Repository URL:
+   - `argocd/apps/cluster-a-app.yaml`
+   - `argocd/apps/cluster-b-app.yaml`
 
 2. **Apply Configurations**:
    ```bash
+   kubectl config use-context staging
+   kubectl apply -f argocd/namespaces/cluster-a-argocd-namespace.yaml
+   kubectl apply -f argocd/namespaces/cluster-b-argocd-namespace.yaml # (If managed by Argo/kubectl)
+   
+   # Or better yet, allow ArgoCD to create the namespaces as defined in the Apps.
+   
    kubectl apply -f argocd/projects/project-cluster-a.yaml
    kubectl apply -f argocd/projects/project-cluster-b.yaml
+   
    kubectl apply -f argocd/apps/cluster-a-app.yaml
    kubectl apply -f argocd/apps/cluster-b-app.yaml
    ```
 
-ArgoCD will now sync the applications from `kubernetes/cluster-a` and `kubernetes/cluster-b` folders to the respective clusters.
-*Note:* You might need to add your Cluster B context to ArgoCD if it's external, or if running inside Cluster A, ensure Cluster A can reach Cluster B (VPC peering or public endpoint). If relying on public endpoint, you need to register the cluster in ArgoCD:
-`argocd cluster add production` (using CLI).
-
 ## 3. GitHub Actions (CI/CD)
 
-The workflow is defined in `.github/workflows/deploy.yml`.
+The workflow is located in `.github/workflows/deploy.yml`.
 
-1. Go to your GitHub Repository -> Settings -> Actions -> General.
-2. Ensure "Read and write permissions" is selected under "Workflow permissions" so the action can commit back to the repo.
-3. Push changes to `backend/` or `frontend/` folders.
+1. Go to your GitHub Repository -> **Settings** -> **Actions** -> **General**.
+2. Ensure **"Read and write permissions"** is selected under "Workflow permissions".
+3. Push changes to the `backend/` or `frontend/` directories.
 4. The workflow will:
-   - Build Docker images.
-   - Push to GHCR (GitHub Container Registry).
-   - Update `kubernetes/cluster-a/app/kustomization.yaml` and `cluster-b` with the new image tags.
-   - Commit the changes.
+   - Build and Tag Docker images.
+   - Push to GHCR.
+   - Update `deployment.yaml` in `kubernetes/` with the new image tags.
+   - Commit the changes back to the repo.
+   - ArgoCD will detect the changes and sync the clusters.
 
-## 4. Verification
+## 4. Verification & External Access
 
-- **ArgoCD**: Check the UI (localhost:8081) to see apps Syncing.
-- **ALB Endpoint**: Check the `Ingress` resource status in `istio-system` or `staging` namespace to get the ALB address.
-  ```bash
-  kubectl get ingress -n istio-system
-  ```
-  (Note: AWS Load Balancer Controller must be installed on the cluster. The Terraform setup installs Istio, but you may need to ensure the ALB Controller is installed if not included in the standard EKS blueprints. Our setup provided assumes you might install this separately or via Terraform addon if listed).
+### Check Ingress / LoadBalancer
+
+Terraform outputs the external hostname of the Istio Ingress Gateway (ALB).
+
+```bash
+cd infra/cluster-a && terraform output load_balancer_hostname
+cd infra/cluster-b && terraform output load_balancer_hostname
+```
+
+You can use these hostnames to access your application in Staging and Production respectively.
+
+- **Staging URL**: `http://<staging-load-balancer-hostname>`
+- **Production URL**: `http://<production-load-balancer-hostname>`

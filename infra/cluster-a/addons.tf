@@ -28,7 +28,7 @@ resource "helm_release" "istio_base" {
   chart            = "base"
   namespace        = "istio-system"
   create_namespace = true
-  version          = "1.24.0" # Compatible with 1.31? Need 1.28 ultimately but prompt said "configure istio" so I assume standard versions.
+  version          = "1.28.0" # Compatible with 1.31? Need 1.28 ultimately but prompt said "configure istio" so I assume standard versions.
   # PROMPT CHECK: "latest kubernates versions ... 1.34 ... configure istio ... check internet for compatibilities"
   # My research said 1.31 + 1.28.
   # I'll use 1.24.0 in this placeholder, but better to use 1.28.0 if available.
@@ -51,7 +51,7 @@ resource "helm_release" "istiod" {
   chart      = "istiod"
   namespace  = "istio-system"
   wait       = true
-  version    = "1.24.0"
+  version    = "1.28.0"
 
   depends_on = [helm_release.istio_base]
 }
@@ -79,7 +79,15 @@ resource "helm_release" "istio_ingress" {
   chart      = "gateway"
   namespace  = "istio-system"
   wait       = true
-  version    = "1.24.0"
+  version    = "1.28.0"
 
   depends_on = [helm_release.istiod]
+}
+
+data "kubernetes_service" "ingress_gateway" {
+  metadata {
+    name      = "istio-ingressgateway"
+    namespace = "istio-system"
+  }
+  depends_on = [helm_release.istio_ingress]
 }
