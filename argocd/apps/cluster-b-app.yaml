@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-b-app
+  namespace: argocd
+spec:
+  project: cluster-b
+  source:
+    repoURL: https://github.com/HimanM/DevOps-Project-7
+    targetRevision: HEAD
+    path: kubernetes/cluster-b
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

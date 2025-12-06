@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cluster-a
+  namespace: argocd
+spec:
+  description: Staging Project (Cluster A)
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: staging
+    server: '*'
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'

@@ -1,0 +1,94 @@
+name: Build and Push
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
+          tags: |
+            type=sha
+
+      - name: Extract metadata (tags, labels) for Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
+          tags: |
+            type=sha
+
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+
+      - name: Update Kubernetes Manifests
+        run: |
+          # Install kustomize
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+          sudo mv kustomize /usr/local/bin/
+
+          # Get Short SHA
+          SHA=$(git rev-parse --short HEAD)
+          LOWER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          
+          # Update Cluster A (Staging)
+          cd kubernetes/cluster-a/app
+          kustomize edit set image ghcr.io/${LOWER_REPO}/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
+          kustomize edit set image ghcr.io/placeholder/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
+          kustomize edit set image ghcr.io/${LOWER_REPO}/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
+          kustomize edit set image ghcr.io/placeholder/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
+          cd ../../..
+
+          # Update Cluster B (Production)
+          cd kubernetes/cluster-b/app
+          kustomize edit set image ghcr.io/${LOWER_REPO}/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
+          kustomize edit set image ghcr.io/placeholder/backend=ghcr.io/${LOWER_REPO}/backend:sha-${SHA} || true
+          kustomize edit set image ghcr.io/${LOWER_REPO}/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
+          kustomize edit set image ghcr.io/placeholder/frontend=ghcr.io/${LOWER_REPO}/frontend:sha-${SHA} || true
+          cd ../../..
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update container images to sha-${{ github.sha }}"
+          file_pattern: "kubernetes/**/kustomization.yaml"
