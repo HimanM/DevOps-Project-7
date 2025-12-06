@@ -161,3 +161,18 @@ You can use these hostnames to access your application in Staging and Production
 
 - **Staging URL**: `http://<staging-load-balancer-hostname>`
 - **Production URL**: `http://<production-load-balancer-hostname>`
+
+## 5. Observability & Scaling
+
+### Kiali Dashboard
+Visualize your mesh traffic:
+```bash
+kubectl -n istio-system port-forward svc/kiali 20001:20001
+```
+Open [http://localhost:20001](http://localhost:20001).
+
+### HPA Verification
+Check autoscaling status:
+```bash
+kubectl get hpa -n staging
+```

@@ -30,7 +30,6 @@ resource "helm_release" "istio_base" {
   create_namespace = true
   version          = "1.28.0"
   wait             = false
-  # timeout          = 900
 }
 
 resource "helm_release" "istiod" {
@@ -39,8 +38,7 @@ resource "helm_release" "istiod" {
   chart      = "istiod"
   namespace  = "istio-system"
   wait       = false
-  # timeout    = 900
-  version = "1.28.0"
+  version    = "1.28.0"
 
   depends_on = [helm_release.istio_base]
 }
@@ -69,8 +67,7 @@ resource "helm_release" "istio_ingress" {
   chart      = "gateway"
   namespace  = "istio-system"
   wait       = false
-  # timeout    = 900
-  version = "1.28.0"
+  version    = "1.28.0"
 
   values = [
     <<EOF
@@ -104,7 +101,7 @@ resource "helm_release" "kiali_server" {
   chart      = "kiali-server"
   namespace  = "istio-system"
   wait       = false
-  version    = "1.92.0"
+  version    = "1.89.0"
 
   set {
     name  = "auth.strategy"
