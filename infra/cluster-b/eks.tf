@@ -28,7 +28,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.2.0"
+  version = "~> 20.0"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.34"
@@ -46,6 +46,7 @@ module "eks" {
     one = {
       name = "node-group-1"
 
+      ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = ["t3.large"]
 
       min_size     = 1
