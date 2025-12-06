@@ -57,6 +57,8 @@ resource "helm_release" "prometheus" {
 server:
   global:
     scrape_interval: 15s
+  persistentVolume:
+    enabled: false
 EOF
   ]
 }
