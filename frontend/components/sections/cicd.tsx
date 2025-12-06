@@ -7,7 +7,7 @@ export function CicdSection() {
     return (
         <section className="space-y-16 py-24" id="cicd">
             <div className="space-y-6">
-                <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-400">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-400">
                     CI/CD & GitOps Pipeline
                 </h2>
                 <p className="max-w-4xl text-xl text-gray-300 leading-relaxed">
@@ -18,15 +18,15 @@ export function CicdSection() {
             {/* GitHub Actions */}
             <GlassCard className="space-y-8">
                 <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-                    <GitBranch className="h-10 w-10 text-green-400" />
+                    <GitBranch className="h-8 w-8 md:h-10 md:w-10 text-green-400" />
                     <div>
-                        <h3 className="text-2xl font-bold text-white">1. Continuous Integration (GitHub Actions)</h3>
-                        <p className="text-gray-400">Build, Tag, and Push</p>
+                        <h3 className="text-xl md:text-2xl font-bold text-white">1. Continuous Integration (GitHub Actions)</h3>
+                        <p className="text-sm md:text-base text-gray-400">Build, Tag, and Push</p>
                     </div>
                 </div>
 
                 <div className="grid gap-8 lg:grid-cols-2">
-                    <div className="space-y-6 text-gray-300">
+                    <div className="space-y-6 text-gray-300 text-sm md:text-base">
                         <p>
                             GitHub Actions builds optimized Docker images for the frontend and backend.
                         </p>
@@ -42,10 +42,10 @@ export function CicdSection() {
             {/* ArgoCD */}
             <GlassCard className="space-y-8">
                 <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-                    <RefreshCw className="h-10 w-10 text-teal-400" />
+                    <RefreshCw className="h-8 w-8 md:h-10 md:w-10 text-teal-400" />
                     <div>
-                        <h3 className="text-2xl font-bold text-white">2. Continuous Deployment (ArgoCD)</h3>
-                        <p className="text-gray-400">Declarative GitOps Sync</p>
+                        <h3 className="text-xl md:text-2xl font-bold text-white">2. Continuous Deployment (ArgoCD)</h3>
+                        <p className="text-sm md:text-base text-gray-400">Declarative GitOps Sync</p>
                     </div>
                 </div>
 

@@ -62,7 +62,7 @@ export default async function Home() {
         </div>
 
         <footer className="mt-20 border-t border-white/5 bg-black py-12 text-center text-sm text-gray-600">
-          <p className="mb-4">Designed & Architected for DevOps Project 7.</p>
+          <p className="mb-4">Designed & Architected by HimanM.</p>
           <p className="font-mono text-xs text-gray-700">Powered by AWS EKS & ArgoCD</p>
         </footer>
       </main>

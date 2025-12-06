@@ -19,7 +19,7 @@ export function HeroSection({ initialBackendMessage, initialEnv }: HeroSectionPr
     // But relying on Server Component prop is cleaner for "Environment-aware" builds
 
     return (
-        <section className="relative flex min-h-screen flex-col pt-32 pb-20 text-center overflow-hidden">
+        <section className="relative flex min-h-screen flex-col pt-24 pb-12 md:pt-32 md:pb-20 text-center overflow-hidden">
             <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black" />
 
             <motion.div
@@ -28,16 +28,16 @@ export function HeroSection({ initialBackendMessage, initialEnv }: HeroSectionPr
                 transition={{ duration: 0.8 }}
                 className="z-10 mx-auto max-w-5xl px-4 flex-1 flex flex-col items-center justify-center"
             >
-                <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-sm font-medium text-blue-400 backdrop-blur-md">
-                    <Github className="h-4 w-4" />
+                <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs md:text-sm font-medium text-blue-400 backdrop-blur-md">
+                    <Github className="h-3 w-3 md:h-4 md:w-4" />
                     <a href="https://github.com/HimanM/DevOps-Project-7" target="_blank" className="hover:underline">View on GitHub</a>
                 </span>
 
-                <h1 className="mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-7xl font-black text-transparent tracking-tight sm:text-8xl drop-shadow-2xl">
+                <h1 className="mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-4xl md:text-7xl font-black text-transparent tracking-tight sm:text-8xl drop-shadow-2xl">
                     Cloud Native Infrastructure 2.
                 </h1>
 
-                <p className="mb-12 max-w-2xl text-xl text-gray-400 leading-relaxed font-light">
+                <p className="mb-8 md:mb-12 max-w-2xl text-base md:text-xl text-gray-400 leading-relaxed font-light">
                     A definitive guide to Cloud Native Architecture.
                     Deploying microservices to AWS EKS using Terraform, ArgoCD, and GitOps best practices.
                 </p>

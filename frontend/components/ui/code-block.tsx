@@ -44,8 +44,8 @@ export function CodeBlock({ code, language = "bash", title, className }: CodeBlo
                     )}
                 </button>
             </div>
-            <div className="p-4 overflow-x-auto">
-                <pre className="font-mono text-sm text-gray-300">
+            <div className="p-3 md:p-4 overflow-x-auto custom-scrollbar">
+                <pre className="font-mono text-xs md:text-sm text-gray-300">
                     <code>{code}</code>
                 </pre>
             </div>

@@ -6,7 +6,7 @@ export function DebuggingSection() {
     return (
         <section className="space-y-16 py-24" id="debugging">
             <div className="space-y-6">
-                <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-400">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-400">
                     Advanced Debugging
                 </h2>
                 <p className="max-w-4xl text-xl text-gray-300 leading-relaxed">

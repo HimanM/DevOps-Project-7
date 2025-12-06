@@ -69,7 +69,7 @@ export function ZoomableImage({ src, alt, className }: ZoomableImageProps) {
     return (
         <>
             <div
-                className={cn("group relative cursor-zoom-in overflow-hidden rounded-lg border border-white/10 bg-black/50", className)}
+                className={cn("group relative cursor-zoom-in overflow-hidden rounded-lg border border-white/10 bg-black/50 max-h-[300px] md:max-h-none", className)}
                 onClick={() => setIsOpen(true)}
             >
                 <Image
@@ -77,7 +77,7 @@ export function ZoomableImage({ src, alt, className }: ZoomableImageProps) {
                     alt={alt}
                     width={800}
                     height={600}
-                    className="h-auto w-full transition-transform duration-500 group-hover:scale-105"
+                    className={cn("h-auto w-full transition-transform duration-500 group-hover:scale-105", className)}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                     <div className="rounded-full bg-black/50 p-2 backdrop-blur-sm">

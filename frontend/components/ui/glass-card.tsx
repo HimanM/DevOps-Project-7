@@ -11,7 +11,7 @@ export function GlassCard({ children, className, hoverEffect = true }: GlassCard
     return (
         <div
             className={cn(
-                "relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300",
+                "relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 md:p-8 backdrop-blur-md transition-all duration-300",
                 hoverEffect && "hover:border-blue-500/30 hover:bg-white/10 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]",
                 className
             )}

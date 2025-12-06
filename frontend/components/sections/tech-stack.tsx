@@ -32,20 +32,20 @@ export function TechStackMarquee() {
         <div className="w-full overflow-hidden border-y border-white/5 bg-black/20 py-6 backdrop-blur-sm">
             <div className="relative flex w-full overflow-hidden">
                 {/* First Loop */}
-                <div className="animate-marquee flex shrink-0 items-center gap-24 px-12">
+                <div className="animate-marquee flex shrink-0 items-center gap-12 md:gap-24 px-4 md:px-12">
                     {techs.map((tech, idx) => (
                         <div key={idx} className="flex min-w-[max-content] flex-col items-center gap-3">
-                            <tech.icon className={cn("h-10 w-10", tech.color)} />
-                            <span className="text-sm font-medium text-gray-400">{tech.name}</span>
+                            <tech.icon className={cn("h-8 w-8 md:h-10 md:w-10", tech.color)} />
+                            <span className="text-xs md:text-sm font-medium text-gray-400">{tech.name}</span>
                         </div>
                     ))}
                 </div>
                 {/* Second Loop for seamlessness */}
-                <div className="animate-marquee aria-hidden flex shrink-0 items-center gap-24 px-12">
+                <div className="animate-marquee aria-hidden flex shrink-0 items-center gap-12 md:gap-24 px-4 md:px-12">
                     {techs.map((tech, idx) => (
                         <div key={`dup-${idx}`} className="flex min-w-[max-content] flex-col items-center gap-3">
-                            <tech.icon className={cn("h-10 w-10", tech.color)} />
-                            <span className="text-sm font-medium text-gray-400">{tech.name}</span>
+                            <tech.icon className={cn("h-8 w-8 md:h-10 md:w-10", tech.color)} />
+                            <span className="text-xs md:text-sm font-medium text-gray-400">{tech.name}</span>
                         </div>
                     ))}
                 </div>

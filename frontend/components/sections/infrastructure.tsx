@@ -7,33 +7,33 @@ export function InfrastructureSection() {
     return (
         <section className="space-y-16 py-24" id="infrastructure">
             <div className="space-y-6">
-                <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                     Infrastructure as Code
                 </h2>
-                <p className="max-w-4xl text-xl text-gray-300 leading-relaxed">
-                    We use **Terraform** to provision two highly available EKS clusters.
-                    The infrastructure is modular, utilizing the `terraform-aws-modules/eks/aws` blueprints.
-                    Each environment is completely isolated and defined in `infra/cluster-a` (Staging) and `infra/cluster-b` (Production).
+                <p className="max-w-4xl text-base md:text-xl text-gray-300 leading-relaxed">
+                    We use <strong>Terraform</strong> to provision two highly available EKS clusters.
+                    The infrastructure is modular, utilizing the <code className="bg-white/10 px-1 py-0.5 rounded text-sm">terraform-aws-modules/eks/aws</code> blueprints.
+                    Each environment is completely isolated and defined in <code className="bg-white/10 px-1 py-0.5 rounded text-sm">infra/cluster-a</code> (Staging) and <code className="bg-white/10 px-1 py-0.5 rounded text-sm">infra/cluster-b</code> (Production).
                 </p>
             </div>
 
-            <div className="grid gap-12 xl:grid-cols-2">
+            <div className="grid gap-8 md:gap-12 xl:grid-cols-2">
                 {/* Staging Cluster */}
                 <GlassCard className="space-y-8 border-l-4 border-l-blue-500">
                     <div className="flex items-start justify-between">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
                                 <Server className="h-6 w-6 text-blue-400" />
-                                <h3 className="text-3xl font-bold text-white">Staging Cluster</h3>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white">Staging Cluster</h3>
                             </div>
                             <p className="text-sm font-mono text-blue-400">infra/cluster-a</p>
                         </div>
-                        <span className="rounded-full bg-blue-500/10 px-4 py-1.5 text-sm font-medium text-blue-300 border border-blue-500/20">
+                        <span className="rounded-full bg-blue-500/10 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm font-medium text-blue-300 border border-blue-500/20">
                             Cluster A
                         </span>
                     </div>
 
-                    <div className="prose prose-invert max-w-none text-gray-400">
+                    <div className="prose prose-invert max-w-none text-gray-400 text-sm md:text-base">
                         <p>
                             Host for our <strong>ArgoCD Control Plane</strong>. This cluster manages itself AND the production cluster.
                             It runs specific versions of addons to ensure compatibility.
@@ -47,7 +47,7 @@ export function InfrastructureSection() {
                     </div>
 
                     <div className="space-y-4">
-                        <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Provisioning Commands</h4>
+                        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wider text-gray-500">Provisioning Commands</h4>
                         <CodeBlock
                             title="Deploy Staging"
                             code={`cd infra/cluster-a
@@ -61,7 +61,7 @@ terraform apply --auto-approve`}
                     </div>
 
                     <div className="mt-8">
-                        <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Terraform Output</h4>
+                        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Terraform Output</h4>
                         <ZoomableImage
                             src="/docs/staging_cluster_output.png"
                             alt="Terraform Staging Output"
@@ -76,11 +76,11 @@ terraform apply --auto-approve`}
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
                                 <ShieldCheck className="h-6 w-6 text-purple-400" />
-                                <h3 className="text-3xl font-bold text-white">Production Cluster</h3>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white">Production Cluster</h3>
                             </div>
                             <p className="text-sm font-mono text-purple-400">infra/cluster-b</p>
                         </div>
-                        <span className="rounded-full bg-purple-500/10 px-4 py-1.5 text-sm font-medium text-purple-300 border border-purple-500/20">
+                        <span className="rounded-full bg-purple-500/10 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm font-medium text-purple-300 border border-purple-500/20">
                             Cluster B
                         </span>
                     </div>
@@ -117,7 +117,7 @@ terraform apply --auto-approve`}
                         <ZoomableImage
                             src="/docs/prod_cluster_output.png"
                             alt="Terraform Production Output"
-                            className="border-purple-500/20 shadow-lg"
+                            className="border-purple-500/20 shadow-lg h-48 md:h-auto object-cover object-top md:object-contain w-full"
                         />
                     </div>
                 </GlassCard>
