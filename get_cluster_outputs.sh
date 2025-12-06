@@ -37,9 +37,10 @@ spinner() {
     tput cnorm
 }
 
-# Fetch LB URL using kubectl
+# Fetch LB URL using kubectl with explicit context
 get_lb_url() {
-    kubectl get svc -n istio-system istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null
+    local context=$1
+    kubectl get svc -n istio-system istio-ingressgateway --context="$context" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null
 }
 
 process_cluster() {
@@ -81,9 +82,9 @@ process_cluster() {
     spinner $!
     echo -e "${GREEN} Done${NC} (Switched to: ${BOLD}$context_alias${NC})"
 
-    # 3. Get Load Balancer URL
+    # 3. Get Load Balancer URL (Pass context explicitly)
     echo -ne "${YELLOW}Fetching Load Balancer URL...${NC}"
-    (get_lb_url > /tmp/lb_${context_alias}) &
+    (get_lb_url "$context_alias" > /tmp/lb_${context_alias}) &
     spinner $!
     echo -e "${GREEN} Done${NC}"
     
