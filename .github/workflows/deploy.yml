@@ -17,6 +17,7 @@ jobs:
       image_tag: ${{ steps.set_vars.outputs.image_tag }}
       branch_type: ${{ steps.set_vars.outputs.branch_type }}
       lower_repo: ${{ steps.set_vars.outputs.lower_repo }}
+      app_env: ${{ steps.set_vars.outputs.app_env }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,9 +31,11 @@ jobs:
           if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
             echo "branch_type=MAIN" >> $GITHUB_OUTPUT
             echo "image_tag=sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "app_env=production" >> $GITHUB_OUTPUT
           else
             echo "branch_type=FEATURE" >> $GITHUB_OUTPUT
             echo "image_tag=test-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "app_env=staging" >> $GITHUB_OUTPUT
           fi
           echo "lower_repo=${LOWER_REPO}" >> $GITHUB_OUTPUT
 
@@ -59,6 +62,8 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.REGISTRY }}/${{ needs.context.outputs.lower_repo }}/backend:${{ needs.context.outputs.image_tag }}
+          build-args: |
+            APP_ENV=${{ needs.context.outputs.app_env }}
 
   build-frontend:
     needs: context
@@ -83,6 +88,8 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ env.REGISTRY }}/${{ needs.context.outputs.lower_repo }}/frontend:${{ needs.context.outputs.image_tag }}
+          build-args: |
+            APP_ENV=${{ needs.context.outputs.app_env }}
 
   deploy-staging:
     needs: [context, build-backend, build-frontend]
