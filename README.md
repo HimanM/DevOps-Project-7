@@ -147,3 +147,37 @@ You can verify the state of your clusters using `kubectl`.
 
 **Production Resources:**
 ![Production Verification](docs/prod_kubectl_get_pods,svc,endpoints,hpa.png)
+
+## 🏗️ Architecture & GitOps Pipeline
+
+This project employs a **GitOps** methodology where the Git repository is the single source of truth for the infrastructure and application state.
+
+### 🔄 CI/CD Workflow
+The pipeline is fully automated using **GitHub Actions** and **ArgoCD**:
+
+1.  **Feature Development**:
+    *   Developers push code to a feature branch (non-`main`).
+    *   **GitHub Actions** triggers:
+        *   Builds the Docker image for the application.
+        *   Pushes the image to **GitHub Container Registry (GHCR)** with a specific tag.
+        *   Updates the **Staging Manifests** (`kubernetes/cluster-a`) in the repo with the new image tag.
+2.  **Staging Deployment (Automatic)**:
+    *   **ArgoCD** (running on Cluster A) detects the change in the manifest.
+    *   It automatically syncs the **Staging Cluster** state to match the repo.
+    *   The new feature is deployed to Staging for verification.
+3.  **Production Promotion**:
+    *   Once verified, a Pull Request (PR) is merged to the `main` branch.
+    *   **GitHub Actions** triggers again:
+        *   Updates the **Production Manifests** (`kubernetes/cluster-b`) with the verified image tag.
+    *   **ArgoCD** syncs the **Production Cluster** (Cluster B) to the new state.
+
+### 🛠️ Technologies
+*   **Infrastructure**: Terraform (provisioning EKS Clusters, VPCs, IAM).
+*   **Orchestration**: AWS EKS v1.34 (Managed Kubernetes).
+*   **Deployment**: ArgoCD (GitOps Controller).
+*   **Service Mesh**: Istio & Kiali (Traffic management & Observability).
+*   **Monitoring**: Prometheus & Metrics Server (HPA).
+
+### 📸 Application Preview
+The final deployed application on the Staging Cluster:
+![Staging Application Frontend](/docs/staging_application_frontend.png)
