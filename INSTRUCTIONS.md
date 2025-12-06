@@ -18,7 +18,7 @@ We have two cluster configurations: `infra/cluster-a` (Staging) and `infra/clust
 ```bash
 cd infra/cluster-a
 terraform init
-terraform apply -auto-approve
+terraform apply --auto-approve
 ```
 
 This will create:
