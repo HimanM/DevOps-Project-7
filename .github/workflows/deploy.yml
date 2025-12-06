@@ -1,4 +1,4 @@
-name: Build and Push
+name: Build and Deploy
 
 on:
   push:
@@ -9,74 +9,138 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  context:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-
+    outputs:
+      image_tag: ${{ steps.set_vars.outputs.image_tag }}
+      branch_type: ${{ steps.set_vars.outputs.branch_type }}
+      lower_repo: ${{ steps.set_vars.outputs.lower_repo }}
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
+      - name: Set Variables
+        id: set_vars
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          LOWER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          
+          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
+            echo "branch_type=MAIN" >> $GITHUB_OUTPUT
+            echo "image_tag=sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          else
+            echo "branch_type=FEATURE" >> $GITHUB_OUTPUT
+            echo "image_tag=test-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          fi
+          echo "lower_repo=${LOWER_REPO}" >> $GITHUB_OUTPUT
+
+  build-backend:
+    needs: context
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Backend
-        id: meta-backend
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
-          tags: |
-            type=sha
-
-      - name: Extract metadata (tags, labels) for Frontend
-        id: meta-frontend
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
-          tags: |
-            type=sha
-
-      - name: Build and push Backend image
+      - name: Build and Push Backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
-          tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: ${{ steps.meta-backend.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ needs.context.outputs.lower_repo }}/backend:${{ needs.context.outputs.image_tag }}
 
-      - name: Build and push Frontend image
+  build-frontend:
+    needs: context
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ steps.meta-frontend.outputs.tags }}
-          labels: ${{ steps.meta-frontend.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ needs.context.outputs.lower_repo }}/frontend:${{ needs.context.outputs.image_tag }}
 
-      - name: Update Kubernetes Manifests
-        run: |
-          # Get Short SHA
-          SHA=$(git rev-parse --short HEAD)
-          LOWER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          
-          # Update Cluster A (Staging)
-          sed -i "s|image: ghcr.io/.*/backend:.*|image: ghcr.io/${LOWER_REPO}/backend:sha-${SHA}|g" kubernetes/cluster-a/app/deployment.yaml
-          sed -i "s|image: ghcr.io/.*/frontend:.*|image: ghcr.io/${LOWER_REPO}/frontend:sha-${SHA}|g" kubernetes/cluster-a/app/deployment.yaml
-
-          # Update Cluster B (Production)
-          sed -i "s|image: ghcr.io/.*/backend:.*|image: ghcr.io/${LOWER_REPO}/backend:sha-${SHA}|g" kubernetes/cluster-b/app/deployment.yaml
-          sed -i "s|image: ghcr.io/.*/frontend:.*|image: ghcr.io/${LOWER_REPO}/frontend:sha-${SHA}|g" kubernetes/cluster-b/app/deployment.yaml
-
-      - name: Commit and Push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+  deploy-staging:
+    needs: [context, build-backend, build-frontend]
+    if: needs.context.outputs.branch_type == 'FEATURE'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          commit_message: "chore: update container images to sha-${{ github.sha }}"
-          file_pattern: "kubernetes/**/app/deployment.yaml"
+          fetch-depth: 0
+
+      - name: Update Staging Manifests
+        run: |
+          # Checkout default branch to update manifests
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout main || git checkout master
+          git pull origin $(git branch --show-current)
+
+          IMAGE_TAG="${{ needs.context.outputs.image_tag }}"
+          LOWER_REPO="${{ needs.context.outputs.lower_repo }}"
+          TARGET_FILE="kubernetes/cluster-a/app/deployment.yaml"
+
+          sed -i "s|image: ghcr.io/.*/backend:.*|image: ghcr.io/${LOWER_REPO}/backend:${IMAGE_TAG}|g" "$TARGET_FILE"
+          sed -i "s|image: ghcr.io/.*/frontend:.*|image: ghcr.io/${LOWER_REPO}/frontend:${IMAGE_TAG}|g" "$TARGET_FILE"
+          
+          git add "$TARGET_FILE"
+          git commit -m "deploy(staging): update images to ${IMAGE_TAG}" || echo "No changes to commit"
+          git push origin $(git branch --show-current)
+
+  deploy-prod:
+    needs: [context, build-backend, build-frontend]
+    if: needs.context.outputs.branch_type == 'MAIN'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Production Manifests
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          # Already on main/master usually, but ensure latest
+          git pull origin $(git branch --show-current)
+
+          IMAGE_TAG="${{ needs.context.outputs.image_tag }}"
+          LOWER_REPO="${{ needs.context.outputs.lower_repo }}"
+          TARGET_FILE="kubernetes/cluster-b/app/deployment.yaml"
+
+          sed -i "s|image: ghcr.io/.*/backend:.*|image: ghcr.io/${LOWER_REPO}/backend:${IMAGE_TAG}|g" "$TARGET_FILE"
+          sed -i "s|image: ghcr.io/.*/frontend:.*|image: ghcr.io/${LOWER_REPO}/frontend:${IMAGE_TAG}|g" "$TARGET_FILE"
+          
+          git add "$TARGET_FILE"
+          git commit -m "deploy(prod): update images to ${IMAGE_TAG}" || echo "No changes to commit"
+          git push origin $(git branch --show-current)

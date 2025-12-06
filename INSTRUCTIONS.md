@@ -107,6 +107,16 @@ kubectl port-forward svc/argocd-server -n argocd 8081:443
    - `argocd/apps/cluster-a-app.yaml`
    - `argocd/apps/cluster-b-app.yaml`
 
+2. **Update Destination Cluster Endpoints**:
+   Get your cluster endpoints:
+   ```bash
+   aws eks describe-cluster --name cluster-a-staging --query "cluster.endpoint" --output text
+   aws eks describe-cluster --name cluster-b-prod --query "cluster.endpoint" --output text
+   ```
+   Replace `https://kubernetes.default.svc` in the `destination.server` field of the respective app files:
+   - `argocd/apps/cluster-a-app.yaml`: Use Staging Endpoint.
+   - `argocd/apps/cluster-b-app.yaml`: Use Production Endpoint.
+
 2. **Apply Configurations**:
    ```bash
    kubectl config use-context staging
