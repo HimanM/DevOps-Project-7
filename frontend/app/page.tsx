@@ -27,7 +27,7 @@ export default async function Home() {
     backendMessage = "Failed to connect to backend.";
   }
 
-  const env = process.env.NODE_ENV || "development";
+  const env = process.env.APP_ENV || process.env.NODE_ENV || "development";
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30">

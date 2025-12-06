@@ -38,8 +38,8 @@ export function HeroSection({ initialBackendMessage, initialEnv }: HeroSectionPr
                 </h1>
 
                 <p className="mb-8 md:mb-12 max-w-2xl text-base md:text-xl text-gray-400 leading-relaxed font-light">
-                    A definitive guide to Cloud Native Architecture.
-                    Deploying microservices to AWS EKS using Terraform, ArgoCD, and GitOps best practices.
+                    A comprehensive demonstration of modern DevOps practices, featuring Kubernetes orchestration, Service Mesh traffic management, and GitOps automation.
+                    Experience a complete pipeline with isolated <strong>Staging</strong> and <strong>Production</strong> environments, fully automated via <strong>GitHub Actions CI/CD</strong>.
                 </p>
 
                 {/* Status Dashboard */}

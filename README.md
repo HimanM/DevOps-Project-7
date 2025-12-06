@@ -22,7 +22,8 @@
 
 This project demonstrates a comprehensive DevOps solution for deploying microservices (Node.js Backend and Next.js Frontend) to Amazon Elastic Kubernetes Service (EKS). It leverages Terraform for Infrastructure as Code (IaC), ArgoCD for GitOps-style continuous delivery, and GitHub Actions for continuous integration.
 
-Key technologies:
+**Key Technologies:**
+
 *   **AWS EKS (Kubernetes 1.34)**: Managed Kubernetes clusters for Staging and Production.
 *   **Terraform**: Automated infrastructure provisioning.
 *   **Istio & Prometheus**: Service mesh and monitoring stack.
@@ -40,7 +41,43 @@ Key technologies:
 
 ## Architecture
 
-*(Architecture diagram placeholder)*
+This project employs a **GitOps** methodology where the Git repository is the single source of truth for the infrastructure and application state.
+
+### CI/CD Workflow Setup
+
+The pipeline is fully automated using **GitHub Actions** and **ArgoCD**:
+
+1.  **Feature Development**:
+    *   Developers push code to a feature branch (non-`main`).
+    *   **GitHub Actions** triggers:
+        *   Builds the Docker image for the application.
+        *   Pushes the image to **GitHub Container Registry (GHCR)** with a specific tag.
+        *   Updates the **Staging Manifests** (`kubernetes/cluster-a`) in the repo with the new image tag.
+2.  **Staging Deployment (Automatic)**:
+    *   **ArgoCD** (running on Cluster A) detects the change in the manifest.
+    *   It automatically syncs the **Staging Cluster** state to match the repo.
+    *   The new feature is deployed to Staging for verification.
+3.  **Production Promotion**:
+    *   Once verified, a Pull Request (PR) is merged to the `main` branch.
+    *   **GitHub Actions** triggers again:
+        *   Updates the **Production Manifests** (`kubernetes/cluster-b`) with the verified image tag.
+    *   **ArgoCD** syncs the **Production Cluster** (Cluster B) to the new state.
+
+### Technology Stack Details
+
+*   **Infrastructure Plan**: Terraform provisions VPCs, Subnets, and EKS Clusters.
+*   **Orchestration**: AWS EKS v1.34 handles the container workloads.
+*   **Continuous Deployment**: ArgoCD monitors the Git repository and syncs changes.
+*   **Service Mesh**: Istio manages traffic flows, mTLS, and observability via Kiali.
+*   **Monitoring**: Prometheus scrapes metrics for HPA and dashboarding.
+
+### Application Preview
+
+**Staging Environment:**
+![Staging Application Frontend](/docs/staging_application_frontend.png)
+
+**Production Environment:**
+![Production Application Frontend](/docs/prod_application_frontend.png)
 
 ## Repository Structure
 
@@ -67,7 +104,17 @@ Run `terraform apply` in `infra/cluster-b`.
 
 ![Production Cluster Output](docs/prod_cluster_output.png)
 
-### 2. Kubernetes Configuration
+### 2. Retrieve Load Balancer URLs
+
+After provisioning, use the included helper script to retrieve the Load Balancer URLs for both environments.
+
+```bash
+./get_cluster_outputs.sh
+```
+
+![Cluster Outputs Script](docs/get_cluster_outputs_bash.png)
+
+### 3. Kubernetes Configuration
 
 After provisioning, configure your local `kubectl` to interact with both clusters.
 
