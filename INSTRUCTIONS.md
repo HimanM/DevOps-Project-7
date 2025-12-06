@@ -43,8 +43,20 @@ This acts as our Production Environment.
 Once Terraform finishes, update your local kubeconfig to access both clusters:
 
 ```bash
-aws eks update-kubeconfig --region us-east-1 --name cluster-a-staging --alias staging
-aws eks update-kubeconfig --region us-east-1 --name cluster-b-prod --alias production
+# Add Cluster A (Staging) to kubeconfig
+aws eks update-kubeconfig --region us-west-2 --name cluster-a-staging --alias staging
+
+# Add Cluster B (Production) to kubeconfig
+aws eks update-kubeconfig --region us-west-2 --name cluster-b-prod --alias production
+```
+
+**Verify Connection:**
+```bash
+kubectl config use-context staging
+kubectl get nodes
+
+kubectl config use-context production
+kubectl get nodes
 ```
 
 ## 2. ArgoCD Setup
