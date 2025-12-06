@@ -107,6 +107,11 @@ resource "helm_release" "kiali_server" {
     name  = "auth.strategy"
     value = "anonymous"
   }
+
+  set {
+    name  = "external_services.prometheus.url"
+    value = "http://prometheus-server.prometheus.svc.cluster.local"
+  }
 }
 
 data "kubernetes_service" "ingress_gateway" {

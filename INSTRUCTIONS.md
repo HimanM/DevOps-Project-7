@@ -167,7 +167,7 @@ You can use these hostnames to access your application in Staging and Production
 ### Kiali Dashboard
 Visualize your mesh traffic:
 ```bash
-kubectl -n istio-system port-forward svc/kiali 20001:20001
+kubectl -n istio-system port-forward svc/kiali 20001:20001 --address 0.0.0.0
 ```
 Open [http://localhost:20001](http://localhost:20001).
 
