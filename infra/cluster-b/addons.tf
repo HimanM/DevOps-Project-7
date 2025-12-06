@@ -72,6 +72,15 @@ resource "helm_release" "istio_ingress" {
   # timeout    = 900
   version = "1.28.0"
 
+  values = [
+    <<EOF
+service:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+EOF
+  ]
+
   depends_on = [helm_release.istiod]
 }
 
