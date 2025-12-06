@@ -11,7 +11,7 @@ export function InfrastructureSection() {
                     Infrastructure as Code
                 </h2>
                 <p className="max-w-4xl text-base md:text-xl text-gray-300 leading-relaxed">
-                    We use <strong>Terraform</strong> to provision two highly available EKS clusters.
+                    Two highly available EKS clusters are provisioned using <strong>Terraform</strong>.
                     The infrastructure is modular, utilizing the <code className="bg-white/10 px-1 py-0.5 rounded text-sm">terraform-aws-modules/eks/aws</code> blueprints.
                     Each environment is completely isolated and defined in <code className="bg-white/10 px-1 py-0.5 rounded text-sm">infra/cluster-a</code> (Staging) and <code className="bg-white/10 px-1 py-0.5 rounded text-sm">infra/cluster-b</code> (Production).
                 </p>
@@ -122,6 +122,33 @@ terraform apply --auto-approve`}
                     </div>
                 </GlassCard>
             </div>
+
+            <GlassCard className="space-y-6">
+                <div className="flex flex-col md:flex-row items-start gap-8">
+                    <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Server className="h-6 w-6 text-green-400" />
+                            <h3 className="text-2xl font-bold text-white">Post-Provisioning: Get URLs</h3>
+                        </div>
+                        <p className="text-gray-400 text-sm md:text-base">
+                            A helper script <code className="text-green-400">get_cluster_outputs.sh</code> is available to automatically retrieve the Load Balancer URLs for both Staging and Production services.
+                        </p>
+                        <CodeBlock
+                            title="Retrieve Outputs"
+                            code={`chmod +x get_cluster_outputs.sh
+./get_cluster_outputs.sh`}
+                        />
+                    </div>
+                    <div className="flex-1 md:max-w-lg">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Script Output</h4>
+                        <ZoomableImage
+                            src="/docs/get_cluster_outputs_bash.png"
+                            alt="Cluster Outputs Script"
+                            className="border-green-500/20 shadow-lg"
+                        />
+                    </div>
+                </div>
+            </GlassCard>
 
             <GlassCard className="bg-gradient-to-r from-gray-900 to-gray-800 border-white/5">
                 <div className="flex flex-col md:flex-row items-center gap-8 p-4">

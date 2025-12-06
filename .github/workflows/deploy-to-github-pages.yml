@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    paths:
+      - 'frontend/**'
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  deploy-to-github-pages:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build for GitHub Pages
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_DEPLOY_SOURCE: 'github-pages'
+          APP_ENV: 'Frontend Only'
+
+      - name: Add .nojekyll file
+        working-directory: ./frontend
+        run: |
+          mkdir -p out
+          touch out/.nojekyll
+
+      - name: Add CNAME file
+        working-directory: ./frontend
+        run: echo "devops7.himanmanduja.fun" > out/CNAME
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/out
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          cname: devops7.himanmanduja.fun

@@ -57,7 +57,7 @@ export function CicdSection() {
                     <div className="flex-1 flex flex-col gap-6 text-gray-300 text-sm md:text-base">
                         <div className="min-h-[3rem] flex items-end">
                             <p>
-                                We utilize a strict <strong>GitOps</strong> workflow.
+                                A strict <strong>GitOps</strong> workflow is enforced.
                                 Changes to the infrastructure or application are made via Git commits.
                             </p>
                         </div>
@@ -77,10 +77,19 @@ export function CicdSection() {
                         </div>
                     </div>
                     <div className="flex-1 flex flex-col gap-6">
-                        <div className="min-h-[3rem] flex items-end">
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Staging Application Frontend</p>
+                        {/* Staging */}
+                        <div className="flex flex-col gap-4">
+                            <div className="min-h-[3rem] flex items-end">
+                                <p className="text-xs font-semibold text-blue-400 uppercase">Staging Application</p>
+                            </div>
+                            <ZoomableImage src="/docs/staging_application_frontend.png" alt="Staging Frontend" className="shadow-2xl border-blue-500/20 w-full h-auto object-cover" />
                         </div>
-                        <ZoomableImage src="/docs/staging_application_frontend.png" alt="Staging Frontend" className="shadow-2xl border-blue-500/20 w-full h-auto object-cover" />
+
+                        {/* Production */}
+                        <div className="flex flex-col gap-4">
+                            <p className="text-xs font-semibold text-green-400 uppercase">Production Application</p>
+                            <ZoomableImage src="/docs/prod_application_frontend.png" alt="Production Frontend" className="shadow-2xl border-green-500/20 w-full h-auto object-cover" />
+                        </div>
                     </div>
                 </div>
             </GlassCard>
