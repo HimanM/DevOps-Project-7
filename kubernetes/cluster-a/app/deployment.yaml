@@ -64,3 +64,5 @@ spec:
         env:
         - name: BACKEND_URL
           value: "http://backend:8080"
+        - name: APP_ENV
+          value: "staging"
