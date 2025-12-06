@@ -10,6 +10,8 @@ spec:
   destinations:
   - namespace: staging
     server: '*'
+  - namespace: istio-system
+    server: '*'
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'

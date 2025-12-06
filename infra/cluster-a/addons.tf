@@ -51,9 +51,9 @@ resource "helm_release" "istiod" {
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "istiod"
   namespace  = "istio-system"
-  wait       = true
-  timeout    = 900
-  version    = "1.28.0"
+  wait       = false
+  # timeout    = 900
+  version = "1.28.0"
 
   depends_on = [helm_release.istio_base]
 }
@@ -81,9 +81,9 @@ resource "helm_release" "istio_ingress" {
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "gateway"
   namespace  = "istio-system"
-  wait       = true
-  timeout    = 900
-  version    = "1.28.0"
+  wait       = false
+  # timeout    = 900
+  version = "1.28.0"
 
   depends_on = [helm_release.istiod]
 }
