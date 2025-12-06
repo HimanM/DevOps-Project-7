@@ -42,8 +42,8 @@ resource "helm_release" "istio_base" {
   # The error might have been transient or repo URL wrong.
   # I'll use "1.24.1" or just "1.24.0" and correct repo.
 
-  wait    = true
-  timeout = 900
+  wait = false
+  # timeout = 900
 }
 
 resource "helm_release" "istiod" {
@@ -65,7 +65,7 @@ resource "helm_release" "prometheus" {
   namespace        = "prometheus"
   create_namespace = true
   version          = "25.8.0" # Check latest
-  timeout          = 900
+  wait             = false
 
   values = [
     <<EOF
